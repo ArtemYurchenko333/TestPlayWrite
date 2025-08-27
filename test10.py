@@ -787,38 +787,74 @@ class MultiUserUhmegleBot:
         return False
 
     async def process_one_conversation(self, user_number):
-        """Обработка одного разговора"""
+        """Обработка одного разговора - отправка 3 сообщений с интервалами"""
         try:
             print(f"\n👤 Начинаем разговор с пользователем #{user_number}/{self.max_users}")
             print(f"📊 Прогресс: {user_number}/{self.max_users} ({(user_number/self.max_users)*100:.1f}%)")
             
-            # Список сообщений
-             #messages = [
-            #    "Hey love, got a SC? Add me and let's chat emily_meland",
-            #    "Hey f20, Add me on snapchat and let's chat —- emily_meland",
-            #    "Hi, I'm Emily. Let's go to Snapchat - emily_meland",
-            #    "Hey! Want to chat on Snapchat? emily_meland",
-            #    "Hi there! Add me on SC: emily_meland"
-            #]
-
-            messages = [
-                "Hey F, let’s chat on a s n a p? Add me and let's chat emilymelandxxx",
-                "Hey f20, Add me on snapchat and let's chat… emilymelandxxx",
-                "Hi, I'm Emily. Let's go to Snapchat - emilymelandxxx",
-                "Hey! Want to chat on Snapchat? emilymelandxxx",
-                "Hi there! Add me on snap: emilymelandxxx"
+            # Первое сообщение - приветствие
+            first_messages = [
+                "Hey F,",
+                "Hey f20,",
+                "Hi, I'm Emily.",
+                "Hey! F here",
+                "Hi there!"
             ]
             
-            # Выбираем случайное сообщение
-            message = random.choice(messages)
+            # Второе сообщение - предложение чата
+            second_messages = [
+                "let's chat on S n a p?",
+                "Bored",
+                "Up for a chat?",
+                "Want to chat?",
+                "How are you?"
+            ]
             
-            # Отправляем сообщение (ввод занимает 4 секунды)
-            if not await self.send_message(message):
-                print("⚠️ Не удалось отправить сообщение, но продолжаем...")
+            # Третье сообщение - добавление в Snapchat
+            third_messages = [
+                "Add me - emilymelandxxx",
+                "Add me on snapchat - emilymelandxxx",
+                "Find me on Snapchat - emilymelandxxx",
+                "My Snapchat - emilymelandxxx",
+                "Add me on snap: emilymelandxxx"
+            ]
             
-            # Пауза между собеседниками 4.75 секунды
-            print("⏳ Пауза 4.75 секунды...")
-            await asyncio.sleep(4.75)
+            # Выбираем случайные сообщения из каждого списка
+            message1 = random.choice(first_messages)
+            message2 = random.choice(second_messages)
+            message3 = random.choice(third_messages)
+            
+            print(f"📝 Планируем отправить:")
+            print(f"   1️⃣ {message1}")
+            print(f"   2️⃣ {message2} (через 1.2с)")
+            print(f"   3️⃣ {message3} (через 1.4с)")
+            
+            # Отправляем первое сообщение
+            print("📤 Отправляем первое сообщение...")
+            if not await self.send_message(message1):
+                print("⚠️ Не удалось отправить первое сообщение, но продолжаем...")
+            
+            # Ждем 1.2 секунды перед вторым сообщением
+            print("⏳ Ждем 1.2 секунды...")
+            await asyncio.sleep(1.2)
+            
+            # Отправляем второе сообщение
+            print("📤 Отправляем второе сообщение...")
+            if not await self.send_message(message2):
+                print("⚠️ Не удалось отправить второе сообщение, но продолжаем...")
+            
+            # Ждем 1.4 секунды перед третьим сообщением
+            print("⏳ Ждем 1.4 секунды...")
+            await asyncio.sleep(1.4)
+            
+            # Отправляем третье сообщение
+            print("📤 Отправляем третье сообщение...")
+            if not await self.send_message(message3):
+                print("⚠️ Не удалось отправить третье сообщение, но продолжаем...")
+            
+            # Пауза между собеседниками 2 секунды
+            print("⏳ Пауза 2 секунды перед переходом к следующему...")
+            await asyncio.sleep(2)
             
             # Переходим к следующему собеседнику (если не последний)
             if user_number < self.max_users:
@@ -826,8 +862,8 @@ class MultiUserUhmegleBot:
                 # Ждем загрузки нового собеседника
                 await self.page.wait_for_timeout(3000)
             
-            self.message_count += 1
-            print(f"✅ Разговор с пользователем #{user_number} завершен")
+            self.message_count += 3  # Теперь отправляем 3 сообщения за разговор
+            print(f"✅ Разговор с пользователем #{user_number} завершен (отправлено 3 сообщения)")
             return True
             
         except Exception as e:
@@ -923,7 +959,9 @@ class MultiUserUhmegleBot:
                     continue
                 
             print("=" * 60)
-            print(f"🎉 Обработка завершена! Отправлено сообщений: {self.message_count}/{self.max_users}")
+            print(f"🎉 Обработка завершена! Отправлено сообщений: {self.message_count}/{self.max_users * 3}")
+            print(f"📊 Пользователей обработано: {self.max_users}")
+            print(f"📤 Сообщений на пользователя: 3")
             return True
             
         except Exception as e:
@@ -989,7 +1027,9 @@ class MultiUserUhmegleBot:
                     continue
                 
             print("=" * 60)
-            print(f"🎉 Обработка завершена! Отправлено сообщений: {self.message_count}/{self.max_users}")
+            print(f"🎉 Обработка завершена! Отправлено сообщений: {self.message_count}/{self.max_users * 3}")
+            print(f"📊 Пользователей обработано: {self.max_users}")
+            print(f"📤 Сообщений на пользователя: 3")
             return True
             
         except Exception as e:
