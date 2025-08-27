@@ -673,68 +673,60 @@ class MultiUserUhmegleBot:
     async def find_next_button(self):
         """Поиск кнопки для перехода к следующему собеседнику"""
         try:
-            print("🔍 Ищем кнопку для перехода к следующему собеседнику...")
-            
-            # Сначала пробуем нажать Stop/Really/Next
-            stop_selectors = [
+            print("🔍 Пытаемся завершить текущий чат и перейти к новому собеседнику...")
+
+            # Шаг 1. Нажимаем «Stop»
+            if not await self._click_first_visible([
                 'button:has-text("Stop")',
-                'button:has-text("Really")',
-                'button:has-text("Next")',
                 'div:has-text("Stop")',
-                'div:has-text("Really")', 
-                'div:has-text("Next")',
                 '[class*="stop"]',
+            ], "Stop"):
+                print("⚠️ Кнопка Stop не найдена. Пропускаем завершение чата ...")
+
+            # Небольшая пауза чтобы появилась кнопка подтверждения
+            await self.page.wait_for_timeout(1000)
+
+            # Шаг 2. Подтверждаем «Really»
+            await self._click_first_visible([
+                'button:has-text("Really")',
+                'div:has-text("Really")',
                 '[class*="really"]',
-                '[class*="next"]',
-                '[class*="bottomButton"]'
-            ]
-            
-            for selector in stop_selectors:
-                try:
-                    elements = await self.page.query_selector_all(selector)
-                    for element in elements:
-                        if await element.is_visible() and await element.is_enabled():
-                            text = await element.inner_text()
-                            text_lower = text.strip().lower()
-                            
-                            if any(keyword in text_lower for keyword in ["stop", "really", "next", "new"]):
-                                print(f"🖱️ Нажимаем кнопку: {text}")
-                                await element.click()
-                                await self.page.wait_for_timeout(1000)
-                                return True
-                except:
-                    continue
-            
-            # Теперь ищем кнопку New для нового собеседника
-            new_selectors = [
+            ], "Really")
+
+            # Ждём появления кнопки для нового собеседника
+            await self.page.wait_for_timeout(1500)
+
+            # Шаг 3. Запускаем новый чат — «Start» или «New»
+            if not await self._click_first_visible([
+                'button:has-text("Start")',
+                'div:has-text("Start")',
                 'button:has-text("New")',
                 'div:has-text("New")',
+                '[class*="start"]',
                 '[class*="new"]',
-                '[class*="bottomButton"]'
-            ]
-            
-            await self.page.wait_for_timeout(2000)  # Ждем появления кнопки New
-            
-            for selector in new_selectors:
-                try:
-                    elements = await self.page.query_selector_all(selector)
-                    for element in elements:
-                        if await element.is_visible() and await element.is_enabled():
-                            text = await element.inner_text()
-                            if "new" in text.lower():
-                                print(f"🆕 Нажимаем кнопку New: {text}")
-                                await element.click()
-                                await self.page.wait_for_timeout(2000)
-                                return True
-                except:
-                    continue
-            
-            print("⚠️ Кнопки для перехода не найдены, но продолжаем...")
+            ], "Start/New"):
+                print("⚠️ Не удалось запустить новый чат. Возможно страница изменилась, продолжаем...")
+
             return True
-            
+
         except Exception as e:
             print(f"❌ Ошибка при поиске кнопки перехода: {e}")
             return False
+
+    async def _click_first_visible(self, selectors: list[str], debug_name: str = "") -> bool:
+        """Ищет первый видимый элемент по переданным селекторам и кликает по нему"""
+        for selector in selectors:
+            try:
+                elements = await self.page.query_selector_all(selector)
+                for element in elements:
+                    if await element.is_visible() and await element.is_enabled():
+                        text = (await element.inner_text()).strip()
+                        print(f"🖱️ Нажимаем {debug_name or text}: '{text or selector}'")
+                        await element.click()
+                        return True
+            except Exception:
+                continue
+        return False
 
     async def process_one_conversation(self, user_number):
         """Обработка одного разговора"""
