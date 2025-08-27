@@ -677,9 +677,13 @@ class MultiUserUhmegleBot:
 
             # Шаг 1. Нажимаем «Stop»
             if not await self._click_first_visible([
-                'button:has-text("Stop")',
-                'div:has-text("Stop")',
-                '[class*="stop"]',
+                # Возможные варианты расположения Stop-кнопки
+                'button:has-text("Stop")',                 # Кнопка
+                'div:has-text("Stop")',                    # Вложенный div с текстом
+                'div.bottomButton.stop',                    # Контейнер-кнопка
+                'div.bottomButton.skipButton.stop',         # Полный набор классов
+                '[class*="skipButton"][class*="stop"]',   # Комбинация классов
+                '[class*="stop"]',                         # Любой элемент с классом stop
             ], "Stop"):
                 print("⚠️ Кнопка Stop не найдена. Пропускаем завершение чата ...")
 
@@ -688,9 +692,13 @@ class MultiUserUhmegleBot:
 
             # Шаг 2. Подтверждаем «Really»
             await self._click_first_visible([
-                'button:has-text("Really")',
-                'div:has-text("Really")',
-                '[class*="really"]',
+                # Возможные варианты расположения Really-кнопки (подтверждение)
+                'button:has-text("Really")',               # Кнопка
+                'div:has-text("Really")',                  # Вложенный div с текстом
+                'div.bottomButton.really',                  # Контейнер-кнопка
+                'div.bottomButton.skipButton.really',       # Полный набор классов
+                '[class*="skipButton"][class*="really"]', # Комбинация классов
+                '[class*="really"]',                       # Любой элемент с классом really
             ], "Really")
 
             # Ждём появления кнопки для нового собеседника
